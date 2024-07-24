@@ -71,7 +71,7 @@ for n_file, filename in enumerate(file_list):
         my_slopes.append(1)
         my_min_vals.append(1)
         # Plot
-        if params['wheter2plot']:
+        if params['whether2plot']:
             plot_invalid(x_rt, y_rt_original, y_rt_ma, y_rt, flat_idx, filename, params)
         continue
 
@@ -88,7 +88,7 @@ for n_file, filename in enumerate(file_list):
     my_slopes.append(slope)
     my_min_vals.append(np.abs(round(min_val,4)))
     # Plot
-    if params['wheter2plot']:
+    if params['whether2plot']:
         plot_valid(x_rt, y_rt_original, y_rt_ma, y_rt, flat_idx, 
             left_boundary, right_boundary, trendline, x_ROI, filename, slope, min_val, params)
 

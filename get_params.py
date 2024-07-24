@@ -8,7 +8,7 @@ def get_params():
     # # # # # PARAMETERS # # # # #
     params = {}
     # Whether to extract hash?
-    params['wheter2plot'] = True
+    params['whether2plot'] = True
     params['speeds'] = ['100nm', '200nm', '1um', '5um', '10um', '20um']
 
     params['baseline_order'] = 1  # 1: linear, 2: quadratic, ..

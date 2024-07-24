@@ -45,23 +45,23 @@ def speed_parsing(fileName):
     return speed
 
 
-def time_axis_parsing(y_length, speed):
-    if speed == 1:
-        t_rt = np.arange((y_length))*0.9461548828125*512/y_length
-    elif speed == 5:
-        t_rt = np.arange((y_length))*0.1908802734375*512/y_length
-    elif speed == 10:
-        t_rt = np.arange((y_length))*0.0949671875000001*512/y_length
-    elif speed == 20:
-        t_rt = np.arange((y_length))*0.047019140625*512/y_length
-    elif speed == 0.1:
-        t_rt = np.arange((y_length))*9.721661328125*512/y_length
-    elif speed == 0.2:
-        t_rt = np.arange((y_length))*4.878356640625*512/y_length
-    else:
-        print('Not supported speed!!!')
-        raise ValueError
-    return t_rt
+# def time_axis_parsing(y_length, speed):
+#     if speed == 1:
+#         t_rt = np.arange((y_length))*0.9461548828125*512/y_length
+#     elif speed == 5:
+#         t_rt = np.arange((y_length))*0.1908802734375*512/y_length
+#     elif speed == 10:
+#         t_rt = np.arange((y_length))*0.0949671875000001*512/y_length
+#     elif speed == 20:
+#         t_rt = np.arange((y_length))*0.047019140625*512/y_length
+#     elif speed == 0.1:
+#         t_rt = np.arange((y_length))*9.721661328125*512/y_length
+#     elif speed == 0.2:
+#         t_rt = np.arange((y_length))*4.878356640625*512/y_length
+#     else:
+#         print('Not supported speed!!!')
+#         raise ValueError
+#     return t_rt
 
 
 def baseline_corr1(x_rt, y_rt):
@@ -146,30 +146,38 @@ def read_list(params=None):
     return file_list
 
 
+def parse_units(line):
+    """Extract units from the # units: line."""
+    parts = line.split(":")[1].strip().split()
+    return parts
+
+
 def read_data(filename=None, params=None):
     # Speed parsing from filename
     speed = speed_parsing(filename)
     if params['data_type'] == 'txt' or params['data_type'] == '.txt':
-        # Data parsing
-        y_rt = np.array([])
-        x_rt = np.array([])
-        with open(filename,'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter='\t')
-            first_column = 1
-            for row in reader:
-                if first_column != 0:
-                    first_column -= 1
-                else:
-                    y_rt = np.concatenate((y_rt,[float(row[5])] ))
-                    x_rt = np.concatenate((x_rt,[float(row[3])] ))
-        y_rt = y_rt[:-1]
+        """Parse the data from the file."""
+        units = []
+        data = []
 
-        # Since the 'time' data in the txt files is messed up, it is manually
-        # generated based on the time interval between two consecutive samples.
-        t_rt = time_axis_parsing(len(y_rt) ,speed)
+        unit_parsing_flag = False
+        with open(filename, 'r') as file:
+            for line in file:
+                if line.startswith("# units:"):
+                    units = parse_units(line)
+                    unit_parsing_flag = True
+                elif (not line.startswith("#")) and (unit_parsing_flag == True):
+                    # Parse the data line
+                    values = list(map(float, line.split()))
+                    data.append(values)
 
-        # x-axis = time
-        x_rt = t_rt
+        # Convert to numpy array for further processing
+        data_array = np.array(data)
+        ## return units, data_array
+
+        t_rt = data_array[:, 3] # 4th column
+        x_rt = t_rt # x axis is time
+        y_rt = data_array[:, 1] # 2nd column
     
     elif params['data_type'] == 'npy' or params['data_type'] == '.npy':
         X = np.load(os.path.join(dirpath,filename))
